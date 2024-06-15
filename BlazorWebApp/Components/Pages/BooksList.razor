@@ -1,0 +1,73 @@
+﻿@page "/"
+@inject IBookRepository Repository
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>
+    Book List
+</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-6">
+        <a href="add-new" class="btn btn-primary shadow-none mb-3">
+            Add New
+        </a>
+        @if(books is null){
+            <div class="book-item">
+                Loading books. Please wait..
+            </div>
+        }
+        else if(books.Any()){
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Publication Date</th>
+                        <th>Category</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var book in books)
+                    {
+                        <tr>
+                            <td>@book.Title</td>
+                            <td>@book.Author</td>
+                            <td>@book.PublicationDate?.ToString("MMMM dd, yyyy")</td>
+                            <td>@book.Category</td>
+                            <td>
+                                <a href="@($"/edit/{book.Id}")" class="btn btn-warning shadow-none">Edit</a>
+                                <button @onclick="() => OpenConfirmDialog(book.Id)" class="btn btn-danger shadow-none ms-3">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else{
+            <div class="book-item">
+                No books found
+            </div>
+        }
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public required Book Book { get; set; }
+    private List<Book>? books;
+
+    protected override async Task OnInitializedAsync()
+    {
+        books = await Repository.GetAllBooks();
+    }
+
+    private void OpenConfirmDialog(int bookId)
+    {
+        Repository.DeleteBook(bookId);
+        Navigation.Refresh();
+        Navigation.NavigateTo("/");
+    }
+}
