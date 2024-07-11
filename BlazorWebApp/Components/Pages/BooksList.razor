@@ -67,7 +67,7 @@
     private void OpenConfirmDialog(int bookId)
     {
         Repository.DeleteBook(bookId);
-        Navigation.Refresh();
+        Navigation.NavigateTo(Navigation.Uri,true);
         Navigation.NavigateTo("/");
     }
 }
